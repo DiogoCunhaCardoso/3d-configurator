@@ -1,65 +1,64 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import useStore from "../../store/model.store";
-
-const buttons = [
-  {
-    icon: <img src="/menu1.svg" className="w-16 h-16" />,
-    hoverIcon: <img src="/menu1Selected.svg" className="w-16 h-16" />,
-    label: "Grelha Lateral",
-  },
-  {
-    icon: <img src="/menu2.svg" className="w-16 h-16" />,
-    hoverIcon: <img src="/menu2Selected.svg" className="w-16 h-16" />,
-    label: "Design Exterior",
-  },
-  {
-    icon: <img src="/menu3.svg" className="w-16 h-16" />,
-    hoverIcon: <img src="/menu3Selected.svg" className="w-16 h-16" />,
-    label: "Cuba Interior",
-  },
-  {
-    icon: <img src="/menu4.svg" className="w-16 h-16" />,
-    hoverIcon: <img src="/menu4Selected.svg" className="w-16 h-16" />,
-    label: "Tampa",
-  },
-];
+import CropperOverlay from "./CropperOverlay";
+import ButtonOne from "./subComponents/ButtonOne";
+import ButtonTwo from "./subComponents/ButtonTwo";
+import ButtonThree from "./subComponents/ButtonThree";
+import ButtonFour from "./subComponents/ButtonFour";
 
 const SideMenu = () => {
   const [hovered, setHovered] = useState(null);
+  const [openColors, setOpenColors] = useState(false);
+  const [openColorPicker, setOpenColorPicker] = useState(false);
   const [openRadio, setOpenRadio] = useState(false);
 
-  // Zustand store values
-  const activeTopTexture = useStore((state) => state.activeTopTexture);
-  const setActiveTopTexture = useStore((state) => state.setActiveTopTexture);
+  const [openCrop, setOpenCrop] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
 
-  const setActiveFrontTexture = useStore(
-    (state) => state.setActiveFrontTexture
-  );
+  const interiorColor = useStore((state) => state.interiorColor);
+  const setFrontTexture = useStore((state) => state.setActiveFrontTexture);
+  const setInteriorColor = useStore((state) => state.setInteriorColor);
 
-  const handleImageUpload = (event) => {
+  const setIsInteriorShowing = useStore((state) => state.setIsInteriorShowing);
+
+  const fileInputRef = useRef(null);
+  const colorInputRef = useRef(null);
+
+  const labels = [
+    "Grelha Lateral",
+    "Design Exterior",
+    "Cuba Interior",
+    "Tampa",
+  ];
+
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log("File selected:", file.name);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Image = reader.result;
-        console.log("Base64 Image:", base64Image);
-        setActiveFrontTexture(base64Image); // Store image in Zustand
+      reader.onload = () => {
+        setImageSrc(reader.result);
+        setOpenCrop(true);
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const handleColorSelect = (event) => {
+    const color = event.target.value;
+    setInteriorColor(color); // ✅ Update Zustand state instead of selectedTopColor
+  };
+
   const handleButtonClick = (index) => {
     switch (index) {
       case 0:
-        console.log("clicked button 1");
+        setOpenColors((prev) => !prev);
         break;
       case 1:
-        console.log("clicked button 2");
+        fileInputRef.current.click();
         break;
       case 2:
-        document.getElementById("file-upload").click();
+        setIsInteriorShowing(); // ✅ This was missing!
+        setOpenColorPicker((prev) => !prev);
         break;
       case 3:
         setOpenRadio((prev) => !prev);
@@ -76,78 +75,75 @@ const SideMenu = () => {
         alt="Linha Background"
         className="absolute -right-24 mt-12 scale-[0.65] object-contain pointer-events-none"
       />
-      {buttons.map((btn, index) => (
+
+      {[...Array(4)].map((_, index) => (
         <div
           key={index}
           className={`relative flex items-center gap-3 ${
             index === 0 || index === 3 ? "ml-8" : ""
           }`}
         >
-          {/* Button Label */}
           <div className="text-[#fff] text-end w-32">
             <p className="text-[14px] leading-[20px]">
               Componente <br />
-              <span className="font-[700] text-[#2596be]">{btn.label}</span>
+              <span className="font-[700] text-[#2596be]">{labels[index]}</span>
             </p>
           </div>
 
-          {/* Button + Radio Wrapper */}
           <div className="relative flex items-center">
-            {/* Icon Button */}
             <div
               className="cursor-pointer transition-transform duration-200"
-              style={{
-                transform: hovered === index ? "scale(1.15)" : "scale(1)",
-              }}
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => handleButtonClick(index)}
             >
-              {hovered === index ? btn.hoverIcon : btn.icon}
+              {hovered === index ? (
+                <img
+                  src={`/menu${index + 1}Selected.svg`}
+                  className="w-16 h-16"
+                />
+              ) : (
+                <img src={`/menu${index + 1}.svg`} className="w-16 h-16" />
+              )}
             </div>
 
-            {/* Hidden File Input (Triggered Automatically) */}
-            {index === 2 && (
-              <input
-                type="file"
-                id="file-upload"
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageUpload}
+            {index === 0 && (
+              <ButtonOne
+                {...{
+                  openColors,
+                }}
               />
             )}
-
-            {/* Radio Buttons - For Button 3 */}
-            {index === 3 && (
-              <div
-                className={`absolute left-16 bg-gradient-to-tr from-[#3c3c3c] to-[#1c1c1c] p-4 pl-20 rounded-r-xl flex gap-4 transition-all duration-300 ease-in-out
-                ${
-                  openRadio
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-full pointer-events-none"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="texture-1"
-                  id="texture1-1"
-                  className="w-6 h-6 cursor-pointer"
-                  checked={activeTopTexture === 0}
-                  onChange={() => setActiveTopTexture(0)}
-                />
-                <input
-                  type="radio"
-                  name="texture-1"
-                  id="texture2-1"
-                  className="w-6 h-6 cursor-pointer"
-                  checked={activeTopTexture === 1}
-                  onChange={() => setActiveTopTexture(1)}
-                />
-              </div>
+            {index === 1 && (
+              <ButtonTwo {...{ fileInputRef, handleFileUpload }} />
             )}
+            {index === 2 && (
+              <ButtonThree
+                {...{
+                  openColorPicker,
+                  colorInputRef,
+                  handleColorSelect,
+                  interiorColor,
+                }}
+              />
+            )}
+            {index === 3 && <ButtonFour {...{ openRadio }} />}
           </div>
         </div>
       ))}
+
+      {/* ✅ Cropper Overlay */}
+      {openCrop && (
+        <CropperOverlay
+          imageSrc={imageSrc}
+          onSave={(croppedImage) => {
+            setFrontTexture(croppedImage);
+            setOpenCrop(false);
+          }}
+          onCancel={() => setOpenCrop(false)}
+          aspectRatio={1.8 / 0.8}
+        />
+      )}
     </div>
   );
 };

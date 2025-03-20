@@ -11,7 +11,7 @@ const Carousel = ({ images }) => {
   // TO CALCULATE RESIZE -----------------------
   const textBlockWidth = 224;
   const arrowWidth = 32;
-  const galleryGap = 32;
+  const galleryGap = 48;
   const imageWidth = 200;
 
   // HANDLE RESIZE ------------------------------
@@ -121,11 +121,11 @@ const Carousel = ({ images }) => {
         />
         {/* Images List */}
         {visibleImages.map((image, i) => (
-          <span key={i} className="flex flex-col items-center gap-2">
+          <span key={i} className="flex flex-col items-center gap-4">
             <img
               src={image.src}
               alt={image.alt}
-              className={`w-[${imageWidth}px] h-[152px] object-cover cursor-pointer shrink-0`}
+              className={`w-[${imageWidth}px] h-24 object-cover cursor-pointer shrink-0`}
               style={{
                 opacity: activePreset === image.index ? 1 : 0.3,
                 transition: "opacity 0.3s",

@@ -5,10 +5,10 @@ import SideMenu from "./components/SideMenu.jsx";
 
 export default function Overlay() {
   const images = [
-    { src: "./produto1.png", name: "COLDBATH", alt: "produto1" },
-    { src: "./produto2.png", name: "LUXCORPUS", alt: "produto2" },
-    { src: "./produto3.png", name: "ICEREHAB", alt: "produto3" },
-    { src: "./produto4.png", name: "SENSEEVO", alt: "produto4" },
+    { src: "./coldbath.png", name: "COLDBATH", alt: "produto1" },
+    { src: "./luxcorpus.png", name: "LUXCORPUS", alt: "produto2" },
+    { src: "./icerehab.png", name: "ICEREHAB", alt: "produto3" },
+    { src: "./senseevo.png", name: "SENSEEVO", alt: "produto4" },
   ];
 
   const bottomImages = [

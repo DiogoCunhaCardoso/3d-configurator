@@ -1,21 +1,96 @@
-import React from "react";
-import { useGLTF } from "@react-three/drei";
+import * as THREE from "three";
+import React, { useRef } from "react";
+import { useGLTF, useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import useStore from "../../store/model.store";
 
 export function Model(props) {
   const { nodes, materials } = useGLTF("/loti.glb");
 
-  // TAMPA
-  const activeTopTexture = useStore((state) => state.activeTopTexture);
-  const texturaTampa =
-    activeTopTexture === 0 ? materials.wood : materials.polystyrene;
+  // ACTIVE TEXTURES / COLORS ------------------------------------------------
 
-  // SIDE WALLS
-  const activeColor = useStore((state) => state.activeColor);
-  const currentColor =
-    activeColor === null ? materials.Vinyl : new THREE.Color(activeColor);
+  const topTexture = useStore((state) => state.activeTopTexture);
+  const color = useStore((state) => state.activeColor); // not in use
+  const interiorColor = useStore((state) => state.interiorColor);
+  const gridColor = useStore((state) => state.activeGrid);
+  const frontTexture = useStore((state) => state.activeFrontTexture);
 
-  // FRONT
+  // APPLY -------------------------------------------------------------------
+
+  const topMaterial = topTexture === 0 ? materials.wood : materials.polystyrene;
+
+  const sidesColor =
+    color === null
+      ? materials.Vinyl
+      : new THREE.MeshStandardMaterial({
+          ...materials.Vinyl,
+          color: new THREE.Color(color),
+        });
+
+  const interiorMaterial =
+    interiorColor === null
+      ? materials.GRAY15
+      : new THREE.MeshStandardMaterial({
+          ...materials.GRAY15,
+          color: new THREE.Color(interiorColor), // Correct: use color instead of interiorColor
+        });
+
+  const gridMaterial = gridColor
+    ? new THREE.MeshStandardMaterial({
+        ...materials.GRAY14,
+        color: new THREE.Color(gridColor),
+      })
+    : materials.GRAY14;
+
+  const frontFaceTexture = useTexture(frontTexture || "./texture_vinyl.jpg");
+
+  // FIX ROTATION (THIS SHOULD HAVE BEEN DONE IN BLENDER UV MAPPING :SIGH)
+  frontFaceTexture.rotation = -Math.PI / 2;
+  frontFaceTexture.center.set(0.5, 0.5);
+  frontFaceTexture.flipY = true;
+
+  const frontFaceMaterial = new THREE.MeshStandardMaterial({
+    ...materials.Vinyl,
+    map: frontTexture ? frontFaceTexture : materials.Vinyl.map,
+  });
+
+  // ANIMATION --------------------------------------------------------------
+
+  const isInteriorShowing = useStore((state) => state.isInteriorShowing);
+
+  // Refs for meshes
+  const tampaDireitaRef = useRef();
+  const tampaEsquerdaRef = useRef();
+  const separadorMetalicoRef = useRef();
+  const puxadorEsquerdoRef = useRef();
+  const puxadorDireitoRef = useRef();
+
+  useFrame(() => {
+    const targetZ = isInteriorShowing ? -200 : 0;
+    const targetOpacity = isInteriorShowing ? 0 : 1;
+
+    const moveAndFade = (mesh, delay = 0) => {
+      if (!mesh || !mesh.material) return;
+
+      setTimeout(() => {
+        mesh.position.z = THREE.MathUtils.lerp(mesh.position.z, targetZ, 0.1);
+
+        mesh.material.transparent = true;
+        mesh.material.opacity = THREE.MathUtils.lerp(
+          mesh.material.opacity,
+          targetOpacity,
+          0.1
+        );
+      }, delay);
+    };
+
+    moveAndFade(tampaDireitaRef.current, 0);
+    moveAndFade(tampaEsquerdaRef.current, 100);
+    moveAndFade(separadorMetalicoRef.current, 100);
+    moveAndFade(puxadorEsquerdoRef.current, 100);
+    moveAndFade(puxadorDireitoRef.current, 100);
+  });
+
   return (
     <group {...props} dispose={null}>
       <group
@@ -29,14 +104,7 @@ export function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.banheira.geometry}
-          material={materials.GRAY15}
-        />
-        <mesh
-          name="banheira_1"
-          castShadow
-          receiveShadow
-          geometry={nodes.banheira_1.geometry}
-          material={materials.GRAY67}
+          material={interiorMaterial}
         />
         <group
           name="interiorTubos"
@@ -346,7 +414,7 @@ export function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.faceEsquerda.geometry}
-          material={currentColor} //AQUI
+          material={sidesColor} //AQUI
           position={[-18.656, 899.5, 252.087]}
         />
         <mesh
@@ -354,7 +422,7 @@ export function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.faceFrente.geometry}
-          material={materials.Vinyl}
+          material={frontFaceMaterial}
           position={[336.844, 0, 252.087]}
           rotation={[0, 0, -Math.PI / 2]}
         >
@@ -434,7 +502,7 @@ export function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.grelhaDireita.geometry}
-          material={currentColor} // AQUI
+          material={sidesColor} // AQUI
           position={[-18.656, -899.5, 306.337]}
           rotation={[0, 0, Math.PI]}
         />
@@ -448,8 +516,9 @@ export function Model(props) {
             castShadow
             receiveShadow
             geometry={nodes.grelhaTras_1.geometry}
-            material={materials.GRAY14}
+            material={gridMaterial}
           />
+
           <mesh
             name="grelhaTras_2"
             castShadow
@@ -489,7 +558,7 @@ export function Model(props) {
               castShadow
               receiveShadow
               geometry={nodes.bordaDireita.geometry}
-              material={texturaTampa}
+              material={topMaterial}
               position={[0, 0, -872]}
               rotation={[Math.PI / 2, 0, 0]}
             />
@@ -498,7 +567,7 @@ export function Model(props) {
               castShadow
               receiveShadow
               geometry={nodes.bordaEsquerda.geometry}
-              material={texturaTampa}
+              material={topMaterial}
               position={[0, 0, 872]}
               rotation={[-Math.PI / 2, 0, 0]}
             />
@@ -512,7 +581,7 @@ export function Model(props) {
                 castShadow
                 receiveShadow
                 geometry={nodes.bordaExtra_1.geometry}
-                material={texturaTampa}
+                material={topMaterial}
               />
               <mesh
                 name="bordaExtra_2"
@@ -527,7 +596,7 @@ export function Model(props) {
               castShadow
               receiveShadow
               geometry={nodes.bordaFrente.geometry}
-              material={texturaTampa}
+              material={topMaterial}
               position={[0, -328, 0]}
             />
             <mesh
@@ -535,13 +604,14 @@ export function Model(props) {
               castShadow
               receiveShadow
               geometry={nodes.bordaTras.geometry}
-              material={texturaTampa}
+              material={topMaterial}
               position={[0, 328, 0]}
               rotation={[-Math.PI, 0, 0]}
             />
           </group>
           <mesh
-            name="sepradorMetalico"
+            ref={separadorMetalicoRef}
+            name="separadorMetalico"
             castShadow
             receiveShadow
             geometry={nodes.sepradorMetalico.geometry}
@@ -549,16 +619,17 @@ export function Model(props) {
             position={[-5.338, 0, -8.188]}
           />
           <mesh
+            ref={tampaDireitaRef}
             name="tampaDireita"
             castShadow
             receiveShadow
             geometry={nodes.tampaDireita.geometry}
-            material={texturaTampa}
+            material={topMaterial}
             position={[-717.438, 0, -6.188]}
             rotation={[0, 0, Math.PI / 2]}
           >
             <group
-              name="puxadorDireita"
+              name="puxadorDireito"
               position={[0, -17.5, 0]}
               rotation={[-Math.PI / 2, Math.PI / 2, 0]}
             >
@@ -570,7 +641,7 @@ export function Model(props) {
                 material={materials["Material.001"]}
               />
               <mesh
-                name="puxadorDireita_2"
+                name="puxadorBolas"
                 castShadow
                 receiveShadow
                 geometry={nodes.puxadorDireita_2.geometry}
@@ -579,11 +650,12 @@ export function Model(props) {
             </group>
           </mesh>
           <mesh
+            ref={tampaEsquerdaRef}
             name="tampaEsquerda"
             castShadow
             receiveShadow
             geometry={nodes.tampaEsquerda.geometry}
-            material={texturaTampa}
+            material={topMaterial}
             position={[706.762, 0, -6.188]}
             rotation={[0, 0, -Math.PI / 2]}
           >
@@ -593,6 +665,7 @@ export function Model(props) {
               rotation={[-Math.PI / 2, Math.PI / 2, 0]}
             >
               <mesh
+                ref={puxadorEsquerdoRef}
                 name="puxadorEsquerdo_1"
                 castShadow
                 receiveShadow
@@ -600,7 +673,7 @@ export function Model(props) {
                 material={materials["Material.001"]}
               />
               <mesh
-                name="puxadorEsquerdo_2"
+                name="puxadorBolas"
                 castShadow
                 receiveShadow
                 geometry={nodes.puxadorEsquerdo_2.geometry}

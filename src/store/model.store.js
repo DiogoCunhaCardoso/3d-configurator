@@ -1,21 +1,37 @@
 import { create } from "zustand";
 
 const useStore = create((set) => ({
-  // PRESETS
+  // PRESETS ----------------------------------------------------------
+
   activePreset: 0,
   setActivePreset: (index) => set({ activePreset: index }),
 
-  // TEXTURES
+  // EXTERIOR  --------------------------------------------------------
+
   activeTopTexture: 0,
   setActiveTopTexture: (index) => set({ activeTopTexture: index }),
 
   activeFrontTexture: null,
-  setActiveFrontTexture: (value) => set({ activeFrontTexture: value }),
+  setActiveFrontTexture: (texturePath) =>
+    set({ activeFrontTexture: texturePath }),
 
   activeColor: null,
   setActiveColor: (rgbCode) => set({ activeColor: rgbCode }),
 
-  // ACCESSORIES
+  activeGrid: null,
+  setActiveGrid: (rgbCode) => set({ activeGrid: rgbCode }),
+
+  // INTERIOR  --------------------------------------------------------
+
+  isInteriorShowing: false,
+  setIsInteriorShowing: () =>
+    set((state) => ({ isInteriorShowing: !state.isInteriorShowing })),
+
+  interiorColor: null,
+  setInteriorColor: (rgbCode) => set({ interiorColor: rgbCode }),
+
+  // ACCESSORIES  -----------------------------------------------------
+
   selectedAccessories: [],
   setSelectedAccessories: (name) =>
     set((state) => {
