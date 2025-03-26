@@ -134,7 +134,7 @@ const BottomCarousel = ({ images }) => {
               <img
                 src={image.src}
                 alt={image.alt}
-                className={`w-[${imageWidth}px] object-cover cursor-pointer shrink-0`}
+                className={`w-[${imageWidth}px]  object-cover cursor-pointer shrink-0`}
                 style={{
                   opacity: isSelected ? 1 : 0.3,
                   transition: "opacity 0.3s",

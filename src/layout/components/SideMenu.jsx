@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import useStore from "../../store/model.store";
+import { useState, useRef, useEffect } from "react";
+import myStore from "../../store/model.store";
 import CropperOverlay from "./CropperOverlay";
 import ButtonOne from "./subComponents/ButtonOne";
 import ButtonTwo from "./subComponents/ButtonTwo";
@@ -7,6 +7,18 @@ import ButtonThree from "./subComponents/ButtonThree";
 import ButtonFour from "./subComponents/ButtonFour";
 
 const SideMenu = () => {
+  const activeFrontTexture = myStore((state) => state.activeFrontTexture);
+
+  // Set up the interval logging every 2 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      console.log("activeFrontTexture:", activeFrontTexture);
+    }, 2000);
+
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, [activeFrontTexture]);
+
   const [hovered, setHovered] = useState(null);
   const [openColors, setOpenColors] = useState(false);
   const [openColorPicker, setOpenColorPicker] = useState(false);
@@ -15,11 +27,11 @@ const SideMenu = () => {
   const [openCrop, setOpenCrop] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
 
-  const interiorColor = useStore((state) => state.interiorColor);
-  const setFrontTexture = useStore((state) => state.setActiveFrontTexture);
-  const setInteriorColor = useStore((state) => state.setInteriorColor);
+  const interiorColor = myStore((state) => state.interiorColor);
+  const setFrontTexture = myStore((state) => state.setActiveFrontTexture);
+  const setInteriorColor = myStore((state) => state.setInteriorColor);
 
-  const setIsInteriorShowing = useStore((state) => state.setIsInteriorShowing);
+  const setIsInteriorShowing = myStore((state) => state.setIsInteriorShowing);
 
   const fileInputRef = useRef(null);
   const colorInputRef = useRef(null);
@@ -57,7 +69,7 @@ const SideMenu = () => {
         fileInputRef.current.click();
         break;
       case 2:
-        setIsInteriorShowing(); // ✅ This was missing!
+        setIsInteriorShowing();
         setOpenColorPicker((prev) => !prev);
         break;
       case 3:
@@ -137,6 +149,7 @@ const SideMenu = () => {
         <CropperOverlay
           imageSrc={imageSrc}
           onSave={(croppedImage) => {
+            console.log("Cropped image:", croppedImage);
             setFrontTexture(croppedImage);
             setOpenCrop(false);
           }}

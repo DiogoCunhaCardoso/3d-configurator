@@ -7,25 +7,20 @@ import useStore from "../../store/model.store";
 export function Model(props) {
   const { nodes, materials } = useGLTF("/loti.glb");
 
+  const activePreset = useStore((state) => state.activePreset);
+  const presets = useStore((state) => state.presets);
+  const preset = presets[activePreset];
+  const frontTextureName = preset && preset.activeFrontTexture;
+
   // ACTIVE TEXTURES / COLORS ------------------------------------------------
 
   const topTexture = useStore((state) => state.activeTopTexture);
-  const color = useStore((state) => state.activeColor); // not in use
   const interiorColor = useStore((state) => state.interiorColor);
   const gridColor = useStore((state) => state.activeGrid);
-  const frontTexture = useStore((state) => state.activeFrontTexture);
 
   // APPLY -------------------------------------------------------------------
 
   const topMaterial = topTexture === 0 ? materials.wood : materials.polystyrene;
-
-  const sidesColor =
-    color === null
-      ? materials.Vinyl
-      : new THREE.MeshStandardMaterial({
-          ...materials.Vinyl,
-          color: new THREE.Color(color),
-        });
 
   const interiorMaterial =
     interiorColor === null
@@ -42,17 +37,14 @@ export function Model(props) {
       })
     : materials.GRAY14;
 
-  const frontFaceTexture = useTexture(frontTexture || "./texture_vinyl.jpg");
-
-  // FIX ROTATION (THIS SHOULD HAVE BEEN DONE IN BLENDER UV MAPPING :SIGH)
-  frontFaceTexture.rotation = -Math.PI / 2;
-  frontFaceTexture.center.set(0.5, 0.5);
-  frontFaceTexture.flipY = true;
-
-  const frontFaceMaterial = new THREE.MeshStandardMaterial({
-    ...materials.Vinyl,
-    map: frontTexture ? frontFaceTexture : materials.Vinyl.map,
-  });
+  const frontMaterial = frontTextureName?.startsWith("materials.")
+    ? materials[frontTextureName.split(".")[1]] || materials.Vinyl
+    : new THREE.MeshStandardMaterial({
+        ...materials.Vinyl,
+        map: frontTextureName
+          ? useTexture(frontTextureName)
+          : materials.Vinyl.map,
+      });
 
   // ANIMATION --------------------------------------------------------------
 
@@ -105,6 +97,13 @@ export function Model(props) {
           receiveShadow
           geometry={nodes.banheira.geometry}
           material={interiorMaterial}
+        />
+        <mesh
+          name="banheira_1"
+          castShadow
+          receiveShadow
+          geometry={nodes.banheira_1.geometry}
+          material={materials.GRAY67}
         />
         <group
           name="interiorTubos"
@@ -192,15 +191,7 @@ export function Model(props) {
             position={[-298, -11.25, 14]}
             rotation={[0, 0, -Math.PI]}
           />
-          <mesh
-            name="painelInterno2"
-            castShadow
-            receiveShadow
-            geometry={nodes.painelInterno2.geometry}
-            material={materials.Vinyl}
-            position={[298, -11.25, 13.778]}
-            rotation={[0, 0, Math.PI]}
-          />
+
           <mesh
             name="painelInterno3"
             castShadow
@@ -210,15 +201,6 @@ export function Model(props) {
             position={[-298, 138.75, -336]}
             rotation={[-Math.PI / 2, 0, Math.PI]}
           />
-          <mesh
-            name="painelInterno4"
-            castShadow
-            receiveShadow
-            geometry={nodes.painelInterno4.geometry}
-            material={materials.Vinyl}
-            position={[298, 138.75, -336]}
-            rotation={[-Math.PI / 2, 0, -Math.PI]}
-          />
         </group>
       </group>
       <group
@@ -227,7 +209,7 @@ export function Model(props) {
         rotation={[Math.PI / 2, 0, Math.PI / 2]}
         scale={0.001}
       >
-        {/* <mesh
+        {/*   <mesh
           name="logoDireita"
           castShadow
           receiveShadow
@@ -284,6 +266,13 @@ export function Model(props) {
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
             />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
+            />
           </group>
           <group name="roda2" position={[0, 0, -72]}>
             <mesh
@@ -307,6 +296,13 @@ export function Model(props) {
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
             />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
+            />
           </group>
           <group name="roda3" position={[-1129.429, 599, -72]}>
             <mesh
@@ -329,6 +325,13 @@ export function Model(props) {
               receiveShadow
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
+            />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
             />
           </group>
           <group
@@ -357,6 +360,13 @@ export function Model(props) {
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
             />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
+            />
           </group>
           <group
             name="roda5"
@@ -384,6 +394,13 @@ export function Model(props) {
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
             />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
+            />
           </group>
           <group name="roda6" position={[-1692.521, 2.5, -72.221]}>
             <mesh
@@ -407,6 +424,13 @@ export function Model(props) {
               geometry={nodes.roda6_3.geometry}
               material={materials.Metal}
             />
+            <mesh
+              name="roda6_4"
+              castShadow
+              receiveShadow
+              geometry={nodes.roda6_4.geometry}
+              material={materials.cement}
+            />
           </group>
         </group>
         <mesh
@@ -414,18 +438,35 @@ export function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.faceEsquerda.geometry}
-          material={sidesColor} //AQUI
+          material={materials.Vinyl}
           position={[-18.656, 899.5, 252.087]}
         />
-        <mesh
+        <group
           name="faceFrente"
-          castShadow
-          receiveShadow
-          geometry={nodes.faceFrente.geometry}
-          material={frontFaceMaterial}
           position={[336.844, 0, 252.087]}
           rotation={[0, 0, -Math.PI / 2]}
         >
+          <mesh
+            name="faceFrente_1"
+            castShadow
+            receiveShadow
+            geometry={nodes.faceFrente_1.geometry}
+            material={frontMaterial}
+          />
+          <mesh
+            name="faceFrente_2"
+            castShadow
+            receiveShadow
+            geometry={nodes.faceFrente_2.geometry}
+            material={materials.red}
+          />
+          <mesh
+            name="faceFrente_3"
+            castShadow
+            receiveShadow
+            geometry={nodes.faceFrente_3.geometry}
+            material={materials.medic}
+          />
           <group
             name="metalFrontal"
             position={[100, 2, 280.25]}
@@ -487,7 +528,7 @@ export function Model(props) {
               material={materials["Glass.Ss"]}
             />
           </group>
-        </mesh>
+        </group>
         <mesh
           name="faceTras"
           castShadow
@@ -498,11 +539,11 @@ export function Model(props) {
           rotation={[0, 0, Math.PI / 2]}
         />
         <mesh
-          name="faceDireita"
+          name="grelhaDireita"
           castShadow
           receiveShadow
           geometry={nodes.grelhaDireita.geometry}
-          material={sidesColor} // AQUI
+          material={materials.Vinyl}
           position={[-18.656, -899.5, 306.337]}
           rotation={[0, 0, Math.PI]}
         />
@@ -518,7 +559,6 @@ export function Model(props) {
             geometry={nodes.grelhaTras_1.geometry}
             material={gridMaterial}
           />
-
           <mesh
             name="grelhaTras_2"
             castShadow
@@ -629,7 +669,7 @@ export function Model(props) {
             rotation={[0, 0, Math.PI / 2]}
           >
             <group
-              name="puxadorDireito"
+              name="puxadorDireita"
               position={[0, -17.5, 0]}
               rotation={[-Math.PI / 2, Math.PI / 2, 0]}
             >
@@ -641,7 +681,7 @@ export function Model(props) {
                 material={materials["Material.001"]}
               />
               <mesh
-                name="puxadorBolas"
+                name="puxadorDireita_2"
                 castShadow
                 receiveShadow
                 geometry={nodes.puxadorDireita_2.geometry}
@@ -673,7 +713,7 @@ export function Model(props) {
                 material={materials["Material.001"]}
               />
               <mesh
-                name="puxadorBolas"
+                name="puxadorEsquerdo_2"
                 castShadow
                 receiveShadow
                 geometry={nodes.puxadorEsquerdo_2.geometry}

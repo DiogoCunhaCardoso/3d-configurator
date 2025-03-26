@@ -1,7 +1,7 @@
 import useStore from "../../../store/model.store";
 
 const ButtonOne = ({ openColors }) => {
-  const topColors = ["black", "gray", "white", "blue"];
+  const topColors = ["black", "gray", "white", "#69a4c9"];
   const activeGrid = useStore((state) => state.activeGrid);
   const setActiveGrid = useStore((state) => state.setActiveGrid);
 
@@ -19,7 +19,7 @@ const ButtonOne = ({ openColors }) => {
           key={color}
           onClick={() => setActiveGrid(color)} // ✅ This now updates Zustand
           style={{ backgroundColor: color }}
-          className={`w-8 h-8 rounded-full cursor-pointer ${
+          className={`w-8 h-8 rounded-full cursor-pointer select-none ${
             activeGrid === color
               ? "  border-2 border-[#ccc] scale-110"
               : "border-white"

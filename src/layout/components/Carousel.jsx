@@ -133,7 +133,7 @@ const Carousel = ({ images }) => {
               onClick={() => setActivePreset(image.index)}
             />
             <p className="text-white italic font-medium whitespace-nowrap">
-              ENCOSTO <span className="text-[#6597c3]">{image.name}</span>
+              PADRÃO <span className="text-[#6597c3]">{image.name}</span>
             </p>
           </span>
         ))}

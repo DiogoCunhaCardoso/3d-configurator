@@ -7,7 +7,11 @@ import Overlay from "./layout/Overlay.jsx";
 const root = ReactDOM.createRoot(document.querySelector("#root"));
 
 root.render(
-  <div className="relative w-full h-full">
+  <div className="relative w-full h-3/5 lg:h-full">
+    {/* Background Image Below 3D Model */}
+    <div className="absolute bottom-6 lg:bottom-48 left-1/2 transform -translate-x-1/2 z-20">
+      <img src="./360.png" alt="Background" className="w-16 object-contain" />
+    </div>
     {/* Canvas */}
     <Canvas
       camera={{
