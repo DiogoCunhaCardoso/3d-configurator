@@ -3,6 +3,7 @@ import myStore from "../../../store/model.store";
 import TabTwoSubOne from "../subTabs/SubOne";
 import TabTwoSubThree from "../subTabs/SubThree";
 import TabTwoSubFour from "../subTabs/SubFour";
+import TabTwoSubTwo from "../subTabs/SubTwo";
 
 const SubNavigationButton = ({ text, isActive, onClick }) => {
   return (
@@ -29,7 +30,7 @@ const TabTwo = () => {
 
   const subTabContent = [
     <TabTwoSubOne />,
-    <p>Conteúdo de Design Exterior</p>,
+    <TabTwoSubTwo />,
     <TabTwoSubThree />,
     <TabTwoSubFour />,
   ];

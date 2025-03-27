@@ -5,12 +5,8 @@ const StatusCard = ({ acessoriosExtra = "-" }) => {
   const [showPopup, setShowPopup] = useState(false);
 
   const selectedTopTexture = myStore((state) => state.activeTopTexture);
+  const activeFrontTexture = myStore((state) => state.activeFrontTexture);
   const interiorColor = myStore((state) => state.interiorColor);
-
-  const activePreset = myStore((state) => state.activePreset);
-  const presets = myStore((state) => state.presets);
-  const activeFrontTexture =
-    presets[activePreset] && presets[activePreset].activeFrontTexture;
 
   // Check if activeFrontTexture is null or undefined, then set it to "Vinyl"
   const designExterior = activeFrontTexture

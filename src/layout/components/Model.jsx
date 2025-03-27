@@ -1,16 +1,19 @@
 import * as THREE from "three";
-import React, { useRef } from "react";
-import { useGLTF, useTexture } from "@react-three/drei";
+import React, { useRef, useMemo } from "react";
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import useStore from "../../store/model.store";
 
 export function Model(props) {
   const { nodes, materials } = useGLTF("/loti.glb");
 
+  const activeFrontTexture = useStore((state) => state.activeFrontTexture);
+
   const activePreset = useStore((state) => state.activePreset);
   const presets = useStore((state) => state.presets);
   const preset = presets[activePreset];
-  const frontTextureName = preset && preset.activeFrontTexture;
+  const frontTextureName = activeFrontTexture || preset?.activeFrontTexture;
+  // const frontTextureName = preset && preset.activeFrontTexture;
 
   // ACTIVE TEXTURES / COLORS ------------------------------------------------
 
@@ -27,7 +30,7 @@ export function Model(props) {
       ? materials.GRAY15
       : new THREE.MeshStandardMaterial({
           ...materials.GRAY15,
-          color: new THREE.Color(interiorColor), // Correct: use color instead of interiorColor
+          color: new THREE.Color(interiorColor),
         });
 
   const gridMaterial = gridColor
@@ -37,14 +40,31 @@ export function Model(props) {
       })
     : materials.GRAY14;
 
-  const frontMaterial = frontTextureName?.startsWith("materials.")
-    ? materials[frontTextureName.split(".")[1]] || materials.Vinyl
-    : new THREE.MeshStandardMaterial({
+  const frontMaterial = useMemo(() => {
+    // If no texture name, return default Vinyl material
+    if (!frontTextureName) {
+      return new THREE.MeshStandardMaterial(materials.Vinyl);
+    }
+
+    // Handle material references like "materials.Vinyl"
+    if (frontTextureName.startsWith("materials.")) {
+      const materialKey = frontTextureName.split(".")[1];
+      return materials[materialKey] || materials.Vinyl;
+    }
+
+    // Handle image textures (URLs or base64)
+    try {
+      const texture = new THREE.TextureLoader().load(frontTextureName);
+
+      return new THREE.MeshStandardMaterial({
         ...materials.Vinyl,
-        map: frontTextureName
-          ? useTexture(frontTextureName)
-          : materials.Vinyl.map,
+        map: texture,
       });
+    } catch (error) {
+      console.error("Failed to create texture material:", error);
+      return new THREE.MeshStandardMaterial(materials.Vinyl);
+    }
+  }, [frontTextureName, materials]);
 
   // ANIMATION --------------------------------------------------------------
 

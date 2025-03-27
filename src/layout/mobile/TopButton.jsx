@@ -1,23 +1,27 @@
 import { useState } from "react";
 import myStore from "../../store/model.store";
+
 const TopButton = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   // STORE
-
   const activeFrontTexture = myStore((state) => state.activeFrontTexture);
   const activeTopTexture = myStore((state) => state.activeTopTexture);
   const activeGrid = myStore((state) => state.activeGrid);
+  const selectedAccessories = myStore((state) => state.selectedAccessories);
+
+  const formattedAccessories = selectedAccessories
+    ? selectedAccessories.map((acc) => acc.toLowerCase()).join(", ")
+    : "-";
 
   // GET NAMES
-
   const cardInfo = {
     designExterior: activeFrontTexture
       ? activeFrontTexture.startsWith("materials.")
         ? activeFrontTexture.split(".")[1]
         : "Personalizado"
       : "vynil",
-    cubaInterior: "cubaInterior",
+    cubaInterior: "Personalizado",
     tampa: activeTopTexture === 0 ? "Madeira" : "Polipropeno",
     grelhaDeRespiro:
       activeGrid === "black"
@@ -27,7 +31,7 @@ const TopButton = () => {
         : activeGrid === "white"
         ? "Branco"
         : "Azul",
-    acessoriosExtra: "acessoriosExtra",
+    acessoriosExtra: selectedAccessories ? formattedAccessories : "-",
   };
 
   return (

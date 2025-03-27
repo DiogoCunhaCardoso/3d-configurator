@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import useStore from "../../store/model.store.js";
+import myStore from "../../store/model.store.js";
 
 const BottomCarousel = ({ images }) => {
   const [startIndex, setStartIndex] = useState(0);
@@ -10,7 +10,7 @@ const BottomCarousel = ({ images }) => {
     setActivePreset,
     selectedAccessories,
     setSelectedAccessories,
-  } = useStore();
+  } = myStore();
   const carouselRef = useRef(null);
 
   // TO CALCULATE RESIZE -----------------------

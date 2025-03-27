@@ -19,7 +19,7 @@ const CropperOverlay = ({ imageSrc, onSave, onCancel, aspectRatio }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg w-[90%] max-w-lg">
+      <div className="bg-slate-300 p-4 rounded-lg w-full max-w-lg m-6">
         <div className="relative h-64 w-full">
           <Cropper
             image={imageSrc}
@@ -39,19 +39,19 @@ const CropperOverlay = ({ imageSrc, onSave, onCancel, aspectRatio }) => {
             max={3}
             step={0.1}
             onChange={(e) => setZoom(e.target.value)}
-            className="w-full"
+            className="w-full accent-[#2590b6]"
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="bg-gray-500 text-white px-4 py-2 rounded"
+            className="bg-slate-500 text-white px-4 py-2 rounded"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-[#2590b6] text-white px-4 py-2 rounded"
           >
             Save
           </button>
