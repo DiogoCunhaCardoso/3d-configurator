@@ -9,16 +9,6 @@ import ButtonFour from "./subComponents/ButtonFour";
 const SideMenu = () => {
   const activeFrontTexture = myStore((state) => state.activeFrontTexture);
 
-  // Set up the interval logging every 2 seconds
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      console.log("activeFrontTexture:", activeFrontTexture);
-    }, 2000);
-
-    // Cleanup the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, [activeFrontTexture]);
-
   const [hovered, setHovered] = useState(null);
   const [openColors, setOpenColors] = useState(false);
   const [openColorPicker, setOpenColorPicker] = useState(false);
@@ -149,7 +139,6 @@ const SideMenu = () => {
         <CropperOverlay
           imageSrc={imageSrc}
           onSave={(croppedImage) => {
-            console.log("Cropped image:", croppedImage);
             setFrontTexture(croppedImage);
             setOpenCrop(false);
           }}

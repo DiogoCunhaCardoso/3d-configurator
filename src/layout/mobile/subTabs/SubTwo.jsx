@@ -33,7 +33,6 @@ const TabTwoSubTwo = () => {
         <CropperOverlay
           imageSrc={imageSrc}
           onSave={(croppedImage) => {
-            console.log("Cropped image:", croppedImage);
             setFrontTexture(croppedImage);
             setOpenCrop(false);
           }}
